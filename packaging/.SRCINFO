@@ -1,6 +1,6 @@
 pkgbase = gnome-shell-extension-hot-reload
 	pkgdesc = Reloads GNOME Shell extensions as soon as their files change, without logging out (Wayland)
-	pkgver = 0.1.0
+	pkgver = 0.2.0
 	pkgrel = 1
 	url = https://github.com/TheSalaty/gnome-extension-hot-reload
 	install = hot-reload.install
@@ -8,7 +8,7 @@ pkgbase = gnome-shell-extension-hot-reload
 	license = MIT
 	makedepends = npm
 	depends = gnome-shell>=1:45
-	source = gnome-shell-extension-hot-reload-0.1.0.tar.gz::https://github.com/TheSalaty/gnome-extension-hot-reload/archive/v0.1.0.tar.gz
-	sha256sums = c7cebc62f04a70ea2831b68cdb01b49c1c4f398e58b67ff5c1087167bd43c3a1
+	source = gnome-shell-extension-hot-reload-0.2.0.tar.gz::https://github.com/TheSalaty/gnome-extension-hot-reload/archive/v0.2.0.tar.gz
+	sha256sums = 2db0e2642a6e72a7c2db8a0f930a95986acd6b01f2d63d46775a5f16523a04e8
 
 pkgname = gnome-shell-extension-hot-reload

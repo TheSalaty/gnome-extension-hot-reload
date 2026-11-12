@@ -11,7 +11,7 @@ depends=('gnome-shell>=1:45')
 makedepends=('npm')
 install=hot-reload.install
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('c7cebc62f04a70ea2831b68cdb01b49c1c4f398e58b67ff5c1087167bd43c3a1')
+sha256sums=('2db0e2642a6e72a7c2db8a0f930a95986acd6b01f2d63d46775a5f16523a04e8')
 
 _srcdir="gnome-extension-hot-reload-$pkgver"
 
