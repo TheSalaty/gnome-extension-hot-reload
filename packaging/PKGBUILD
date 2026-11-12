@@ -1,0 +1,36 @@
+# Maintainer: TheSalaty
+_uuid=hot-reload@thesalaty.github.io
+pkgname=gnome-shell-extension-hot-reload
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Reloads GNOME Shell extensions as soon as their files change, without logging out (Wayland)"
+arch=('any')
+url="https://github.com/TheSalaty/gnome-extension-hot-reload"
+license=('MIT')
+depends=('gnome-shell>=1:45')
+makedepends=('npm')
+install=hot-reload.install
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+# Fill in once v$pkgver is tagged: updpkgsums
+sha256sums=('SKIP')
+
+_srcdir="gnome-extension-hot-reload-$pkgver"
+
+prepare() {
+  cd "$_srcdir"
+  # The build needs the TypeScript compiler and the GJS type packages; none of it ships.
+  npm ci --cache "$srcdir/npm-cache"
+}
+
+build() {
+  cd "$_srcdir"
+  make build
+}
+
+package() {
+  cd "$_srcdir"
+  install -d "$pkgdir/usr/share/gnome-shell/extensions/$_uuid"
+  cp -r build/. "$pkgdir/usr/share/gnome-shell/extensions/$_uuid/"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+}

@@ -1,0 +1,8 @@
+post_install() {
+  cat <<'MSG'
+==> Extension Hot Reload is installed.
+==> Log out and back in once, then enable it with:
+==>   gnome-extensions enable hot-reload@thesalaty.github.io
+==> From then on, updated extensions take effect without logging out.
+MSG
+}

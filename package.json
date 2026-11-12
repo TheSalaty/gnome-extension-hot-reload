@@ -1,0 +1,17 @@
+{
+  "name": "gnome-extension-hot-reload",
+  "version": "0.1.0",
+  "description": "GNOME Shell extension that reloads other extensions after an update, without logging out",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "make test"
+  },
+  "devDependencies": {
+    "@girs/gnome-shell": "^50.0.4",
+    "typescript": "^5.0.0"
+  }
+}

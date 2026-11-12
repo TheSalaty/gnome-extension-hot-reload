@@ -1,0 +1,6 @@
+node_modules/
+build/
+*.shell-extension.zip
+# Feasibility experiments and extracted GNOME Shell sources (GPL), kept local only.
+prototype/
+research/
