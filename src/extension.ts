@@ -6,7 +6,13 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js'
 
 import { contentHash } from './files.js'
 import { extensionManager, missingInternals } from './internals.js'
-import { clearUnusedCopies, reload, type ReloadResult } from './reloader.js'
+import {
+  clearUnusedCopies,
+  dismissUpdateNotification,
+  installDownloadedUpdate,
+  reload,
+  type ReloadResult,
+} from './reloader.js'
 import { Watcher } from './watcher.js'
 
 const DBUS_PATH = '/io/github/thesalaty/HotReload'
@@ -39,6 +45,7 @@ const tracked = (shared[Symbol.for('hot-reload.tracked')] ??= new Map<string, Tr
 export default class HotReload extends Extension {
   #watcher: Watcher | null = null
   #dbus: Gio.DBusExportedObject | null = null
+  #stateChanged = 0
   #queue: Promise<unknown> = Promise.resolve()
 
   override enable(): void {
@@ -61,7 +68,13 @@ export default class HotReload extends Extension {
           GLib.idle_add(GLib.PRIORITY_LOW, () => (resolve(), GLib.SOURCE_REMOVE))
         })
         await this.#check(uuid, !tracked.has(uuid))
+        // Downloaded while this extension was off (lock screen).
+        if (extensionManager.lookup(uuid)?.hasUpdate) await this.#update(uuid)
       }
+    })
+    // The shell sets hasUpdate once an update from extensions.gnome.org is fully unpacked.
+    this.#stateChanged = extensionManager.connect('extension-state-changed', (_manager, extension) => {
+      if (extension.hasUpdate) this.#enqueue(() => this.#update(extension.uuid))
     })
 
     this.#dbus = Gio.DBusExportedObject.wrapJSObject(DBUS_INTERFACE, this)
@@ -69,6 +82,8 @@ export default class HotReload extends Extension {
   }
 
   override disable(): void {
+    if (this.#stateChanged) extensionManager.disconnect(this.#stateChanged)
+    this.#stateChanged = 0
     this.#dbus?.unexport()
     this.#dbus = null
     this.#watcher?.destroy()
@@ -81,6 +96,14 @@ export default class HotReload extends Extension {
     const result = this.#queue.then(task)
     this.#queue = result.catch(logError)
     return result
+  }
+
+  /** Installs an update the shell keeps for the next login, and reloads the extension. */
+  async #update(uuid: string): Promise<void> {
+    if (!extensionManager.lookup(uuid)?.hasUpdate) return
+    if (!(await installDownloadedUpdate(uuid))) return
+    const result = await this.#check(uuid, false)
+    if (result?.ok) dismissUpdateNotification()
   }
 
   async #check(uuid: string, baseline: boolean, force = false): Promise<ReloadResult | null> {

@@ -40,6 +40,9 @@ package build is in `packaging/` (`makepkg -si` there).
 - Puts panel items back where they were. A reloaded extension is enabled last and would
   otherwise show up at the far left until the next login.
 - Makes a newly installed extension known to the shell, so it can be enabled right away.
+- Installs updates from extensions.gnome.org right away. The shell downloads them in the
+  background and would only apply them at the next login; the "updates are ready to be
+  installed" notification is taken down once they are running.
 - Catches up after the lock screen, where the shell switches extensions off.
 - Reloads itself the same way when it is updated.
 
@@ -83,9 +86,10 @@ Measured with 45 installed extensions (`tools/perf.sh`):
 
 ## Limits
 
-- The first reload of an extension in a session briefly switches off and on every extension
-  that was enabled after it. That is how the shell unloads an extension; later reloads of the
-  same extension do not do it.
+- Other extensions stay untouched during a reload. The shell itself would switch off and on
+  every extension enabled after the reloaded one, to keep extensions that patch the same shell
+  function stacked in order. If two such extensions misbehave after one of them was reloaded,
+  switch the other one off and on once.
 - If the first reload of an extension in a session fails, its old code keeps running from
   memory, but stylesheet, settings schema and metadata already come from the new files. From
   the second reload on, the fallback is a complete copy of the previous version.

@@ -3,8 +3,12 @@
 # reports whether it is still active. Extensions are copied into the sandbox first.
 #   tools/sweep.sh <dir with extensions> <uuid>...
 #   HR_SWEEP_SYSTEM=1 tools/sweep.sh -      (all system-wide extensions)
+#   HR_SWEEP_TOGETHER=1 ...                 (leave them enabled, so each reload happens with
+#                                            the earlier ones still running after it)
 HERE=$(cd "$(dirname "$0")" && pwd)
 if [ -z "${HR_PRIVATE_BUS:-}" ]; then
+  # Without this check an empty argument would copy "/" into the sandbox.
+  if [ "${1:-}" != - ] && [ ! -d "${1:-}" ]; then sed -n 2,7p "$0"; exit 2; fi
   [ "$1" != - ] && export HR_PREINSTALL="cp -rLn '$1'/. \"\$HR_EXT_DIR/\""
   exec "$HERE/sandbox.sh" "$0" "$@"
 fi
@@ -34,6 +38,10 @@ for U in "$@"; do
   else
     echo "FAIL  $U  state=$AFTER"; echo "        $R1" | cut -c1-300; echo "        $R2" | cut -c1-300; FAIL=$((FAIL + 1))
   fi
+  [ -n "${HR_SWEEP_TOGETHER:-}" ] && { STARTED="${STARTED:-} $U"; continue; }
   gnome-extensions disable "$U"; sleep 1
+done
+for U in ${STARTED:-}; do
+  AFTER=$(state "$U"); [ "$AFTER" = 1 ] || { echo "FAIL  $U ended in state $AFTER"; FAIL=$((FAIL + 1)); }
 done
 echo; echo "$PASS ok, $FAIL failed"

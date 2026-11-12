@@ -43,11 +43,12 @@ expect "both dummies start from their install directory" 'main=v1 .* color=255,0
 expect "  (B)" 'main=b1' label hr-dummyb
 expect "  nothing is copied before the first change" '^0$' generations
 PANEL=$(panel); echo "      panel order: $PANEL"
+ev "globalThis._hrB = Main.panel.statusArea['hr-dummyb']; return 1" >/dev/null
 
 "$HERE/mkdummy.sh" "$W/v2" v2 '#00ff00' 2; install "$W/v2" $A
 expect "replacing the directory reloads code, submodules and stylesheet" 'main=v2 lib=v2 deep=v2 thing=v2 .* color=0,255,0' label
 expect "  same UUID, active, running from a copy" 'state=1 cached=true name=HR Dummy v2' state
-expect "  the extension enabled after it is active again" 'main=b1' label hr-dummyb
+expect "  the extension enabled after it was not switched off and on" '^true$' ev "return globalThis._hrB === Main.panel.statusArea['hr-dummyb']"
 expect "  panel items keep their order" "^$PANEL\$" panel
 expect "  enabled-extensions is untouched" "^\['$HELPER', 'probe@hotreload.test', '$A', '$B', '$D'\]$" gsettings get org.gnome.shell enabled-extensions
 
@@ -100,6 +101,14 @@ expect "  it catches up when enabled again" 'main=v7 .* color=68,85,102' label
 
 expect "Reload over D-Bus forces a reload" '"ok":true' helper Reload $A
 expect "  of an unknown UUID is refused" '"ok":false' helper Reload nope@hotreload.test
+
+UPDATES="$XDG_DATA_HOME/gnome-shell/extension-updates"; mkdir -p "$UPDATES"
+"$HERE/mkdummy.sh" "$UPDATES" u1 '#abcdef' 9
+ev "Main.extensionManager.notifyExtensionUpdate('$A'); return 1" >/dev/null
+expect "an update the shell downloaded for the next login is installed and loaded now" 'main=u1 .* color=171,205,239' label
+expect "  it is gone from the pending updates" '^0$' bash -c "ls '$UPDATES' | wc -l"
+expect "  and installed in the extension directory" 'HR Dummy u1' cat "$HR_EXT_DIR/$A/metadata.json"
+expect "  the shell's log-out notification is taken down" '^false false$' bash -c "$(declare -f ev); ev \"return [!!Main.extensionManager._updateNotified, Main.messageTray.getSources().some(s => s.constructor.name === 'ExtensionUpdateSource')].join(' ')\" | tr -d '\"'"
 
 gtype() { ev "return Main.panel.statusArea['$1']?.constructor.\$gtype.name ?? 'NO INDICATOR'" | tr -d '"'; }
 echo "// updated" >> "$HR_EXT_DIR/$HELPER/extension.js"

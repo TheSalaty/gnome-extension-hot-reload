@@ -2,6 +2,7 @@ import Gio from 'gi://Gio'
 import GLib from 'gi://GLib'
 
 import { ExtensionState } from 'resource:///org/gnome/shell/misc/extensionUtils.js'
+import * as Main from 'resource:///org/gnome/shell/ui/main.js'
 
 import { copyTree } from './files.js'
 import * as GTypePatch from './gtypePatch.mjs'
@@ -92,6 +93,19 @@ function copyToCache(uuid: string, source: Gio.File): Gio.File {
   return target
 }
 
+/**
+ * Unloads an extension without touching the others.
+ *
+ * The shell switches off every extension that was enabled after the one it unloads and
+ * switches them on again afterwards. Counting this one as enabled last leaves nothing after it.
+ */
+function unload(extension: ShellExtension): Promise<boolean> {
+  const order = extensionManager._extensionOrder
+  const index = Array.isArray(order) ? order.indexOf(extension.uuid) : -1
+  if (index !== -1) order!.push(...order!.splice(index, 1))
+  return extensionManager.unloadExtension(extension)
+}
+
 async function load(uuid: string, dir: Gio.File, type: number): Promise<ShellExtension | undefined> {
   // Otherwise the shell refuses any other metadata.version than the one it loaded first.
   extensionManager._unloadedExtensions.delete(uuid)
@@ -117,7 +131,7 @@ export async function reload(uuid: string, source: Gio.File, type: number): Prom
   const previous = extensionManager.lookup(uuid)
   // Nothing of it is cached yet, so its own directory is as good as a copy.
   if (!previous?.isImported) {
-    if (previous) await extensionManager.unloadExtension(previous)
+    if (previous) await unload(previous)
     const loaded = await load(uuid, source, previous?.type ?? type)
     const state = loaded?.state ?? ExtensionState.ERROR
     return { uuid, ok: state !== ExtensionState.ERROR, state, error: loaded?.error || undefined }
@@ -135,7 +149,7 @@ export async function reload(uuid: string, source: Gio.File, type: number): Prom
   GTypePatch.install()
   const previousRoot = generationRoot(previous.path)
   const restorePanelOrder = rememberPanelOrder()
-  await extensionManager.unloadExtension(previous)
+  await unload(previous)
   const loaded = await load(uuid, dir, previous.type)
   if (loaded && loaded.state !== ExtensionState.ERROR) {
     restorePanelOrder()
@@ -152,7 +166,7 @@ export async function reload(uuid: string, source: Gio.File, type: number): Prom
     } catch {
       // It never got fully enabled, so a failing disable() is expected.
     }
-    await extensionManager.unloadExtension(loaded)
+    await unload(loaded)
   }
   // The previous modules are still cached under their path, so this runs the old code even
   // if its files were overwritten in place.
@@ -161,4 +175,28 @@ export async function reload(uuid: string, source: Gio.File, type: number): Prom
   run(['rm', '-rf', generationRoot(dir.get_path()!)!]).catch(logError)
   const state = restored?.state ?? ExtensionState.ERROR
   return { uuid, ok: false, state, error, rolledBack: state !== ExtensionState.ERROR }
+}
+
+/**
+ * Puts an update the shell downloaded from extensions.gnome.org in place, the way the shell
+ * itself does at the next login. Returns whether there was one.
+ */
+export async function installDownloadedUpdate(uuid: string): Promise<boolean> {
+  const update = Gio.File.new_for_path(GLib.build_filenamev([global.userdatadir, 'extension-updates', uuid]))
+  if (!update.query_exists(null)) return false
+  const target = Gio.File.new_for_path(GLib.build_filenamev([global.userdatadir, 'extensions', uuid]))
+  await run(['rm', '-rf', target.get_path()!])
+  // Same file system, so this is a rename.
+  update.move(target, Gio.FileCopyFlags.NONE, null, null)
+  return true
+}
+
+/** Takes down the shell's "log out to install updates" notification once none is waiting. */
+export function dismissUpdateNotification(): void {
+  if (extensionManager.getUuids().some((uuid) => extensionManager.lookup(uuid)?.hasUpdate)) return
+  const tray = Main.messageTray as unknown as { getSources?(): { destroy(): void }[] }
+  const source = tray.getSources?.().find((candidate) => candidate.constructor.name === 'ExtensionUpdateSource')
+  if (!source) return
+  source.destroy()
+  extensionManager._updateNotified = false
 }
