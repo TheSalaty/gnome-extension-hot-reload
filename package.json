@@ -1,6 +1,6 @@
 {
   "name": "gnome-extension-hot-reload",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "GNOME Shell extension that reloads other extensions after an update, without logging out",
   "type": "module",
   "private": true,

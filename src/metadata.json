@@ -3,5 +3,5 @@
   "name": "Extension Hot Reload",
   "description": "Reloads other extensions as soon as their files change, so an update takes effect without logging out. Works for any extension, on Wayland, and falls back to the previous version if the new one fails to load.",
   "shell-version": ["45", "46", "47", "48", "49", "50"],
-  "version-name": "0.1.0"
+  "version-name": "0.2.0"
 }

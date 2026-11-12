@@ -1,7 +1,7 @@
 # Maintainer: TheSalaty
 _uuid=hot-reload@thesalaty.github.io
 pkgname=gnome-shell-extension-hot-reload
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=1
 pkgdesc="Reloads GNOME Shell extensions as soon as their files change, without logging out (Wayland)"
 arch=('any')
