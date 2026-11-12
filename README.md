@@ -25,7 +25,9 @@ Log out and back in once (the shell only discovers new extensions at login), the
 gnome-extensions enable hot-reload@thesalaty.github.io
 ```
 
-An Arch package build is in `packaging/`.
+Or take the zip from the [latest release](https://github.com/TheSalaty/gnome-extension-hot-reload/releases/latest)
+and run `gnome-extensions install hot-reload@thesalaty.github.io.shell-extension.zip`. An Arch
+package build is in `packaging/` (`makepkg -si` there).
 
 ## What it does
 
