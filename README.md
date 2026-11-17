@@ -1,8 +1,14 @@
-# Extension Hot Reload
+# Extension Hot Reload: live reload for GNOME Shell extensions
 
-A GNOME Shell extension that reloads other extensions as soon as their files change. An
-update, a `make install` or a rebuild takes effect within half a second, on Wayland, without
-logging out. It works for any extension; the extension being reloaded needs no changes.
+[![Latest release](https://img.shields.io/github/v/release/TheSalaty/gnome-extension-hot-reload)](https://github.com/TheSalaty/gnome-extension-hot-reload/releases/latest)
+[![GNOME Shell 45–50](https://img.shields.io/badge/GNOME%20Shell-45%E2%80%9350-4a86cf?logo=gnome&logoColor=white)](#limits)
+[![Wayland](https://img.shields.io/badge/Wayland-supported-ffbc00)](#why-this-is-needed)
+[![License: MIT](https://img.shields.io/github/license/TheSalaty/gnome-extension-hot-reload)](LICENSE)
+
+Hot reload for GNOME Shell extension development. This extension reloads other extensions as
+soon as their files change. An update, a `make install` or a rebuild takes effect within half a
+second, on Wayland, without logging out and without restarting GNOME Shell. It works for any
+extension; the extension being reloaded needs no changes.
 
 If the new version fails to load, the previous one is brought back and a notification shows
 the error.
@@ -100,6 +106,32 @@ Measured with 45 installed extensions (`tools/perf.sh`):
   login.
 - Tested on GNOME Shell 50. The internals it uses are unchanged in the sources of 45 to 49,
   but it has not been run there.
+
+## FAQ
+
+### How do I reload a GNOME Shell extension without logging out on Wayland?
+
+Install this extension. On Wayland, `Alt+F2` → `r` does not exist and
+`gnome-extensions disable` / `enable` keeps the old code in memory. Hot Reload loads the
+extension again from its files under the same UUID, so changes show up right away.
+
+### Do I still need a nested shell (`dbus-run-session gnome-shell --nested`) for development?
+
+Not for the edit-and-try loop: the extension reloads in your real session. A nested or
+headless shell is still useful for code that can crash the shell.
+
+### Does it work on X11?
+
+Nothing in it depends on Wayland, but it has only been run on Wayland. On X11 the shell can be
+restarted, which restarts every extension; Hot Reload reloads only the changed one.
+
+### Does it help users, not only developers?
+
+Yes. Updates from extensions.gnome.org are applied immediately instead of after the next login.
+
+### Which GNOME versions are supported?
+
+GNOME Shell 45 to 50 (ESM extensions); tested on 50. See [Limits](#limits).
 
 ## Development
 
