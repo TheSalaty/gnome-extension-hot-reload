@@ -1,7 +1,7 @@
 # Extension Hot Reload: live reload for GNOME Shell extensions
 
 [![Latest release](https://img.shields.io/github/v/release/TheSalaty/gnome-extension-hot-reload)](https://github.com/TheSalaty/gnome-extension-hot-reload/releases/latest)
-[![GNOME Shell 45–50](https://img.shields.io/badge/GNOME%20Shell-45%E2%80%9350-4a86cf?logo=gnome&logoColor=white)](#limits)
+[![GNOME Shell 45–51](https://img.shields.io/badge/GNOME%20Shell-45%E2%80%9351-4a86cf?logo=gnome&logoColor=white)](#limits)
 [![Wayland](https://img.shields.io/badge/Wayland-supported-ffbc00)](#why-this-is-needed)
 [![License: MIT](https://img.shields.io/github/license/TheSalaty/gnome-extension-hot-reload)](LICENSE)
 
@@ -104,7 +104,7 @@ Measured with 45 installed extensions (`tools/perf.sh`):
 - Only top bar items are put back in place. Anything else whose order depends on when an
   extension was enabled, such as entries in the quick settings menu, may move until the next
   login.
-- Tested on GNOME Shell 50. The internals it uses are unchanged in the sources of 45 to 49,
+- Tested on GNOME Shell 50 and 51. The internals it uses are unchanged in the sources of 45 to 49,
   but it has not been run there.
 
 ## FAQ
@@ -131,7 +131,7 @@ Yes. Updates from extensions.gnome.org are applied immediately instead of after 
 
 ### Which GNOME versions are supported?
 
-GNOME Shell 45 to 50 (ESM extensions); tested on 50. See [Limits](#limits).
+GNOME Shell 45 to 51 (ESM extensions); tested on 50 and 51. See [Limits](#limits).
 
 ## Development
 
