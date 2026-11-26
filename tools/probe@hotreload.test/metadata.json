@@ -2,5 +2,5 @@
   "uuid": "probe@hotreload.test",
   "name": "Hot Reload test probe",
   "description": "Test only: lets the test scripts run code inside the sandboxed shell. Never install this in a real session.",
-  "shell-version": ["45", "46", "47", "48", "49", "50"]
+  "shell-version": ["45", "46", "47", "48", "49", "50", "51"]
 }

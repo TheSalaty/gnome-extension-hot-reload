@@ -20,7 +20,7 @@ cat > "$D/metadata.json" <<JSON
   "description": "Testobjekt",
   "version": $VERSION,
   "settings-schema": "org.gnome.shell.extensions.hr-dummy",
-  "shell-version": ["45", "46", "47", "48", "49", "50"]
+  "shell-version": ["45", "46", "47", "48", "49", "50", "51"]
 }
 JSON
 

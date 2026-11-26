@@ -1,7 +1,7 @@
 {
   "name": "gnome-extension-hot-reload",
   "version": "0.2.0",
-  "description": "Hot reload for GNOME Shell extensions: reloads an extension as soon as its files change, without logging out (Wayland, GNOME 45-50)",
+  "description": "Hot reload for GNOME Shell extensions: reloads an extension as soon as its files change, without logging out (Wayland, GNOME 45-51)",
   "keywords": [
     "gnome",
     "gnome-shell",
